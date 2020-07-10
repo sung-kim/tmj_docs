@@ -1,0 +1,569 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>4. point_prod_demo.c &mdash; tmj  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="5. hello_world.c" href="hello_world.html" />
+    <link rel="prev" title="3. Programming Guidelines &amp; Gotchas" href="guidelines.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> tmj
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                Hardware v0.5 | API v0.5.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">2. TMJ Header-only Libraries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">3. Programming Guidelines &amp; Gotchas</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">4. point_prod_demo.c</a></li>
+<li class="toctree-l1"><a class="reference internal" href="hello_world.html">5. hello_world.c</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tmj</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>4. point_prod_demo.c</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/src/point_prod_demo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="point-prod-demo-c">
+<h1>4. point_prod_demo.c<a class="headerlink" href="#point-prod-demo-c" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// vim: expandtab tabstop=3 softtabstop=3 shiftwidth=3</span>
+
+<span class="c1">// How to read this example: read the numbered comments starting here (section [1]),</span>
+<span class="c1">// then jump to main() and read from there to the bottom of the file.</span>
+
+<span class="cm">/* [1] Pointwise product demo kernel</span>
+<span class="cm">   ---------------------------------------------</span>
+<span class="cm">   This code performs the computation a.*b = c, where a, b and c are vectors.</span>
+
+<span class="cm">   This code should be used with the &quot;run&quot; make target, and RUN_RELEASE variable set to 1.</span>
+<span class="cm">   I.e., &quot;make run TESTNAME=point_prod_demo.c RUN_RELEASE=1&quot;</span>
+
+<span class="cm">   All the simulator output is captured in a log named &#39;run.log.&#39;</span>
+<span class="cm">   The simulator prints lots of information at runtime. To see just information generated</span>
+<span class="cm">   by PRINT calls, look at the files &#39;print_*.log&#39; in the &#39;logs&#39; dir after simulation is done.</span>
+
+<span class="cm">   By default, the &quot;linear&quot; (staircase) data pattern is pre-loaded into fake_dram/memory.</span>
+
+<span class="cm">   Jump to section [2].</span>
+<span class="cm">*/</span>
+
+<span class="c1">// Uncomment to exercise DBG-related functions</span>
+<span class="c1">// - if used, the DBG macro needs to come before any other tmj includes</span>
+<span class="c1">//#define DBG</span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;tmj_rt_basic.h&quot;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&quot;test_util.h&quot;</span><span class="cp"></span>
+
+<span class="kt">void</span> <span class="nf">point_prod_manage</span><span class="p">(</span><span class="kt">int</span> <span class="n">tid</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">point_prod_work</span><span class="p">(</span><span class="kt">int</span> <span class="n">tid</span><span class="p">,</span> <span class="kt">int</span> <span class="n">cid</span><span class="p">);</span>
+
+<span class="c1">// Size of the input vectors</span>
+<span class="cp">#define VECT_N 64</span>
+
+<span class="c1">// Number of multiply operations each worker core performs</span>
+<span class="cp">#define MULTS_PER_THREAD (VECT_N/(NUM_TILES*NUM_THREADS))</span>
+
+<span class="c1">// Scratchpad storage option for vector &#39;b&#39;</span>
+<span class="c1">// - 1 for L0 scratchpad</span>
+<span class="c1">// - 2 for TSP</span>
+<span class="cp">#define VECT_B_SP_OPTION 1</span>
+<span class="c1">//#define VECT_B_SP_OPTION 2</span>
+
+<span class="c1">// Uncomment to inject failure in the result vector</span>
+<span class="c1">//#define INJECT_FAILURES</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+   <span class="c1">// [2] Startup in main</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* main_sync() should be called immediately before any major kernel code, in order</span>
+<span class="cm">      to first synchronize with the RTL testbench.</span>
+<span class="cm">   */</span>
+   <span class="n">main_sync</span><span class="p">();</span>
+
+   <span class="c1">// [3] Printing and debug</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* PRINT&#39;s are costly - avoid if fast simulation time is needed, or if benchmarking.</span>
+<span class="cm">   */</span>
+   <span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Pointwise product example&quot;</span><span class="p">);</span>
+
+   <span class="cm">/* General printf is a lot of work to support, but we&#39;ve managed to hack some basic formatted prints :)</span>
+<span class="cm">      (NF stands for &quot;no flush&quot;, as in, no line break).</span>
+<span class="cm">   */</span>
+   <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;This prints a number (&quot;</span><span class="p">);</span> <span class="n">PRINT_INT_NF</span><span class="p">(</span><span class="mi">4</span><span class="p">);</span> <span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;) on 1 line&quot;</span><span class="p">);</span>
+   <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;Hex works too: &quot;</span><span class="p">);</span> <span class="n">PRINT_HEX</span><span class="p">(</span><span class="mi">24</span><span class="p">);</span>
+   <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;Don&#39;t forget to add a line-breaking &quot;</span><span class="p">);</span> <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;print&quot;</span><span class="p">);</span>
+   <span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;Hows the weather?&quot;</span><span class="p">);</span>
+
+   <span class="cm">/* If you want prints that can be enabled/disabled at compile time, use the &quot;D&quot; prefixed versions.</span>
+<span class="cm">      These don&#39;t do anything if DBG is not defined.</span>
+<span class="cm">   */</span>
+   <span class="n">DPRINT</span><span class="p">(</span><span class="s">&quot;This won&#39;t print unless the DBG macro is def&#39;d&quot;</span><span class="p">);</span>
+   <span class="n">DPRINT_NF</span><span class="p">(</span><span class="s">&quot;Also won&#39;t print: &quot;</span><span class="p">);</span> <span class="n">DPRINT_INT</span><span class="p">(</span><span class="mi">999</span><span class="p">);</span>
+
+   <span class="cm">/* Say you want to wrap some code that should only run if DBG is enabled, like incrementing loop vars.</span>
+<span class="cm">      This can be achieved with DBG_LINE, which will include the enclosed text if DBG is defined.</span>
+
+<span class="cm">      Code can also be wrapped with #ifdef&#39;s, this macro is just slightly less verbose if the piece of</span>
+<span class="cm">      code is small.</span>
+<span class="cm">   */</span>
+   <span class="n">DBG_LINE</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">;)</span>
+   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">DBG_LINE</span><span class="p">(</span><span class="n">i</span><span class="o">++</span><span class="p">;)</span>
+      <span class="n">DPRINT_NF</span><span class="p">(</span><span class="s">&quot;Val of i is: &quot;</span><span class="p">);</span> <span class="n">DPRINT_INT</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="c1">// [4] Runtime-environment initialization</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* Things like barriers, cache modes, and other settings are initialized by RT_INIT.</span>
+<span class="cm">      Prints and main_sync() are pretty much the only things that are safe to put before initializing</span>
+<span class="cm">      the runtime. All cores must execute this API call.</span>
+
+<span class="cm">      For this example, we&#39;ll use L1 shared (&quot;SCOPE_SHRD&quot;) scratchpad (&quot;CTRL_SP&quot;).</span>
+<span class="cm">      The L2 is not reconfigurable, and always operates as a shared cache.</span>
+<span class="cm">      We&#39;ll also disable R2R, since it&#39;s out of scope for now.</span>
+<span class="cm">   */</span>
+   <span class="n">RT_INIT</span><span class="p">(</span><span class="n">NUM_THREADS</span><span class="p">,</span> <span class="n">NUM_TILES</span><span class="p">,</span> <span class="n">CTRL_SP_SCOPE_SHRD</span><span class="p">,</span> <span class="n">r2r_switch_e</span><span class="o">::</span><span class="n">DISABLE</span><span class="p">);</span>
+
+   <span class="c1">// [5] Kernel calling and core identification</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* Since the current setup has workers and managers executing the same binary,</span>
+<span class="cm">      (we aren&#39;t short on instruction space, yet), we should make sure they execute</span>
+<span class="cm">      their respective routines. Since the header is called &quot;core identification,&quot;</span>
+<span class="cm">      we might as well pass in the core and tile info while we&#39;re at it.</span>
+
+<span class="cm">      There are a bunch of other ways to identify cores - see the top of tmj_hal.h for details.</span>
+
+<span class="cm">      The other thing that a TMJ test must have are calls to test_setup() and test_cleanup().</span>
+<span class="cm">      These let the RTL testbench know when it should start and stop various monitoring tasks.</span>
+<span class="cm">      Don&#39;t forget to put these calls!!!</span>
+
+<span class="cm">      The location of test_setup() doesn&#39;t matter too much, but test_cleanup() should be after</span>
+<span class="cm">      any kernel code, since it invokes a complete flush and invalidation of the entire memory hierarchy.</span>
+<span class="cm">   */</span>
+   <span class="kt">int</span> <span class="n">tile_id</span> <span class="o">=</span> <span class="n">TILE_ID</span><span class="p">();</span> <span class="c1">// from 0 to NUM_TILES-1</span>
+   <span class="kt">int</span> <span class="n">core_id</span> <span class="o">=</span> <span class="n">CORE_ID</span><span class="p">();</span> <span class="c1">// from 0 to NUM_THREADS (0 to NUM_THREADS-1 for workers)</span>
+                            <span class="c1">// - the manager&#39;s core ID is NUM_THREADS. In other words the manager</span>
+                            <span class="c1">//   is the N+1&#39;th core.</span>
+   <span class="n">test_setup</span><span class="p">();</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">IS_MANAGER</span><span class="p">())</span> <span class="p">{</span>
+      <span class="n">point_prod_manage</span><span class="p">(</span><span class="n">tile_id</span><span class="p">);</span>
+   <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="n">point_prod_work</span><span class="p">(</span><span class="n">tile_id</span><span class="p">,</span> <span class="n">core_id</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="n">test_cleanup</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="c1">// This is a helper struct we&#39;ll use to facilitate passing data from managers to workers</span>
+<span class="k">struct</span> <span class="n">worker_args_t</span> <span class="p">{</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vects_ab</span><span class="p">;</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_c</span><span class="p">;</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">sp_l1</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">void</span> <span class="nf">point_prod_manage</span><span class="p">(</span><span class="kt">int</span> <span class="n">tile_id</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="c1">// [6] Manager routines</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* Since the &quot;linear&quot; data pattern is preloaded, we&#39;ll use some arbitrary areas in memory</span>
+<span class="cm">      to use as input/output data regions.</span>
+
+<span class="cm">      To make use of the L1 scratchpad, we&#39;ll have the workers load the scratchpad from global memory,</span>
+<span class="cm">      and then perform computation out of the scratchpad instead of from ram.</span>
+
+<span class="cm">      Since this is a contrived example and we&#39;d like to demo more API&#39;s, the workers will actually</span>
+<span class="cm">      store vector &#39;a&#39; in the L1 scratchpad, and a chunk of vector &#39;b&#39; in either: (1) a core&#39;s fixed-function</span>
+<span class="cm">      core-private scratchpad (&quot;L0 scratchpad&quot;), or (2) the fixed-function tile scratchpad (TSP).</span>
+<span class="cm">      This option can be configured with the VECT_B_SP_OPTION macro at the top of this file.</span>
+
+<span class="cm">      So the layout in RAM we&#39;ll use is: | vect_a (RAM_BASE) | vect_b | vect_c |</span>
+
+<span class="cm">      Note that in this example kernel the workers could have derived all work_args arguments</span>
+<span class="cm">      themselves. Our use of the QIO is just to illustrate API functionality.</span>
+<span class="cm">   */</span>
+
+   <span class="k">struct</span> <span class="n">worker_args_t</span> <span class="n">work_args</span><span class="p">;</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">ram</span>      <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span> <span class="n">GET_RAM_BASE</span><span class="p">();</span>
+   <span class="n">work_args</span><span class="p">.</span><span class="n">vects_ab</span> <span class="o">=</span> <span class="n">ram</span><span class="p">;</span>
+   <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span>   <span class="o">=</span> <span class="n">ram</span> <span class="o">+</span> <span class="n">VECT_N</span><span class="o">*</span><span class="mi">2</span><span class="p">;</span>
+   <span class="n">work_args</span><span class="p">.</span><span class="n">sp_l1</span>    <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span> <span class="n">GET_L1_SP_BASE</span><span class="p">();</span>
+
+   <span class="cm">/* We&#39;ll now send the work arguments to every worker in this manager&#39;s tile, and let</span>
+<span class="cm">      workers derive their own work indices. broadcast_send() is a convenience API provided by</span>
+<span class="cm">      tmj_rt_basic.</span>
+<span class="cm">   */</span>
+   <span class="n">broadcast_send</span><span class="p">((</span><span class="n">qio_t</span><span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">work_args</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">worker_args_t</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">qio_t</span><span class="p">));</span>
+
+   <span class="c1">// We&#39;ll have the workers send &#39;1&#39; back to the manager, to indicate work is finished.</span>
+   <span class="kt">int</span> <span class="n">num_done</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+   <span class="k">while</span> <span class="p">(</span><span class="n">num_done</span> <span class="o">&lt;</span> <span class="n">NUM_THREADS</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">NUM_THREADS</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+         <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">QIO_IN_ISEMPTY</span><span class="p">(</span><span class="n">i</span><span class="p">))</span> <span class="p">{</span>
+            <span class="n">num_done</span> <span class="o">+=</span> <span class="n">QIO_POP</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+         <span class="p">}</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+   <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;num_done = &quot;</span><span class="p">);</span> <span class="n">PRINT_INT</span><span class="p">(</span><span class="n">num_done</span><span class="p">);</span>
+
+   <span class="c1">// [7] Result checking</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="cm">/* Let&#39;s check the result ... with the &#39;linear&#39; pattern, vect_c</span>
+<span class="cm">      should be [0*(N-1), 1*(N), 2*(N+1), ... , (N-1)*(2N-2)].</span>
+
+<span class="cm">      But first we&#39;ll perform a global memory barrier to make sure all the tiles are finished,</span>
+<span class="cm">      and that data across tiles is in a consistent state.</span>
+
+<span class="cm">      To avoid lots of redundant printing, we&#39;ll only have manager[0] do the checks.</span>
+<span class="cm">   */</span>
+   <span class="n">mem_barrier_all</span><span class="p">();</span> <span class="c1">// This is a global memory barrier (v.s. mem_barrier_tile()).</span>
+                      <span class="c1">// It performs sync_all() and cache-related control internally.</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">tile_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">PRINT</span><span class="p">(</span><span class="s">&quot;First 4 vals: &quot;</span><span class="p">);</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">4</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+         <span class="kt">uint32_t</span> <span class="n">res</span> <span class="o">=</span> <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+         <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;   vect_c[&quot;</span><span class="p">);</span> <span class="n">PRINT_INT_NF</span><span class="p">(</span><span class="n">i</span><span class="p">);</span> <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;] = &quot;</span><span class="p">);</span> <span class="n">PRINT_INT</span><span class="p">(</span><span class="n">res</span><span class="p">);</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+
+   <span class="cm">/* For more streamlined testing and result checking, TMJ provides several special variables</span>
+<span class="cm">      to facilitate result checking, and signal to the testbench if a result was incorrect.</span>
+
+<span class="cm">      The most prominent special variable is RESULT_REG. The default value of RESULT_REG is 0xBEEF,</span>
+<span class="cm">      and this value is checked when test_cleanup() is called. If the value is anything other than 0xBEEF,</span>
+<span class="cm">      the testbench will detect a failure and report the cores for which RESULT_REG was incorrect.</span>
+
+<span class="cm">      So, we&#39;ll check the entire vect_c, and set RESULT_REG to be some number other than 0xBEEF.</span>
+<span class="cm">   */</span>
+
+   <span class="c1">// Enable this macro to see what happens when the RESULT_REG check fails.</span>
+   <span class="cp">#ifdef INJECT_FAILURES</span>
+      <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+      <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+      <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">99</span><span class="p">;</span>
+   <span class="cp">#endif</span>
+
+   <span class="kt">int</span> <span class="n">fail_count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">VECT_N</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">uint32_t</span> <span class="n">expect_val</span> <span class="o">=</span> <span class="n">i</span><span class="o">*</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="n">VECT_N</span><span class="p">);</span>
+      <span class="kt">uint32_t</span> <span class="n">actual_val</span> <span class="o">=</span> <span class="n">work_args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">expect_val</span> <span class="o">!=</span> <span class="n">actual_val</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">fail_count</span><span class="o">++</span><span class="p">;</span>
+      <span class="p">}</span>
+   <span class="p">}</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">fail_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">RESULT_REG</span> <span class="o">=</span> <span class="n">fail_count</span><span class="p">;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">point_prod_work</span><span class="p">(</span><span class="kt">int</span> <span class="n">tile_id</span><span class="p">,</span> <span class="kt">int</span> <span class="n">core_id</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="c1">// [8] Worker routines</span>
+   <span class="c1">// ---------------------------------------------</span>
+
+   <span class="c1">// Receive the work arguments from the manager</span>
+   <span class="k">struct</span> <span class="n">worker_args_t</span> <span class="n">args</span><span class="p">;</span>
+   <span class="n">broadcast_recv</span><span class="p">((</span><span class="n">qio_t</span><span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">args</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">worker_args_t</span><span class="p">)</span><span class="o">/</span><span class="k">sizeof</span><span class="p">(</span><span class="n">qio_t</span><span class="p">));</span>
+
+   <span class="c1">// Compute base addresses for the two input vectors, along with some other indices.</span>
+   <span class="c1">// vect_b_sp can be placed either in the core&#39;s L0 scratchpad, or the tile scratchpad (TSP)</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_a</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">vects_ab</span><span class="p">;</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_b</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">vects_ab</span> <span class="o">+</span> <span class="n">VECT_N</span><span class="p">;</span>
+   <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_a_sp</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">sp_l1</span><span class="p">;</span>
+
+   <span class="cp">#if (VECT_B_SP_OPTION == 1)</span>
+      <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_b_sp</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span> <span class="n">MALLOC_L0</span><span class="p">(</span><span class="n">MULTS_PER_THREAD</span><span class="o">*</span><span class="k">sizeof</span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">));</span>
+   <span class="cp">#elif (VECT_B_SP_OPTION == 2)</span>
+      <span class="kt">uint32_t</span><span class="o">*</span> <span class="n">vect_b_sp</span> <span class="o">=</span> <span class="p">(</span><span class="kt">uint32_t</span><span class="o">*</span><span class="p">)</span> <span class="n">GET_TSP_BASE</span><span class="p">();</span>
+   <span class="cp">#endif</span>
+
+   <span class="c1">// Always good to sanity check addresses ... cross reference with the values in tmj_map.h.</span>
+   <span class="k">if</span> <span class="p">(</span><span class="n">core_id</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;vect_a:&quot;</span><span class="p">);</span>       <span class="n">PRINT_HEX</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">vect_a</span><span class="p">);</span>
+      <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;vect_b:&quot;</span><span class="p">);</span>       <span class="n">PRINT_HEX</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">vect_b</span><span class="p">);</span>
+      <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;vect_c:&quot;</span><span class="p">);</span>       <span class="n">PRINT_HEX</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">);</span>
+      <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;vect_a_sp:&quot;</span><span class="p">);</span>    <span class="n">PRINT_HEX</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">vect_a_sp</span><span class="p">);</span>
+      <span class="n">PRINT_NF</span><span class="p">(</span><span class="s">&quot;vect_b_sp:&quot;</span><span class="p">);</span>    <span class="n">PRINT_HEX</span><span class="p">((</span><span class="kt">uint32_t</span><span class="p">)</span> <span class="n">vect_b_sp</span><span class="p">);</span>
+   <span class="p">}</span>
+
+   <span class="cm">/* These will help reduce index computation within and across loops, although gcc</span>
+<span class="cm">      generally does a decent job of unrolling, and inferring constants.</span>
+<span class="cm">      However, remember that core_id and tile_id can&#39;t be inferred at compile time (currently)!</span>
+<span class="cm">      So, don&#39;t expect gcc to replace computations using CORE_ID() and TILE_ID() with constants -</span>
+<span class="cm">      they will incur real loads/stores, and dependent computation can&#39;t be optimized away.</span>
+<span class="cm">   */</span>
+   <span class="kt">int</span> <span class="n">thread_offset</span> <span class="o">=</span> <span class="n">core_id</span> <span class="o">+</span> <span class="n">tile_id</span><span class="o">*</span><span class="n">NUM_THREADS</span><span class="p">;</span> <span class="c1">// will be computed</span>
+   <span class="kt">int</span> <span class="n">coarse_incr</span> <span class="o">=</span> <span class="n">NUM_THREADS</span><span class="o">*</span><span class="n">NUM_TILES</span><span class="p">;</span>           <span class="c1">// will be statically inferred</span>
+
+   <span class="c1">// Cooperatively load vector &#39;a&#39; from RAM into the L1 shared scratchpad.</span>
+   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">thread_offset</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">VECT_N</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">coarse_incr</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">vect_a_sp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vect_a</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+   <span class="p">}</span>
+
+   <span class="c1">// Load vector &#39;b&#39;</span>
+   <span class="cp">#if (VECT_B_SP_OPTION == 1)</span>
+      <span class="c1">// Load the chunk of vector &#39;b&#39; that this worker needs into it&#39;s internal L0 scratchpad.</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">MULTS_PER_THREAD</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">vect_b_sp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vect_b</span><span class="p">[</span><span class="n">thread_offset</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">coarse_incr</span><span class="p">];</span>
+      <span class="p">}</span>
+   <span class="cp">#elif (VECT_B_SP_OPTION == 2)</span>
+      <span class="c1">// Cooperatively load vector &#39;b&#39; from RAM into the TSP (logic is identical to that of vect_a_sp).</span>
+      <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">thread_offset</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">VECT_N</span><span class="p">;</span> <span class="n">i</span> <span class="o">+=</span> <span class="n">coarse_incr</span><span class="p">)</span> <span class="p">{</span>
+         <span class="n">vect_b_sp</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vect_b</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+      <span class="p">}</span>
+   <span class="cp">#endif</span>
+
+   <span class="c1">// Synchronize worker threads in the tile - make sure to use the &quot;workers&quot; API call</span>
+   <span class="c1">// unless the manager should also be involved (sync_tile() would be used in that case).</span>
+   <span class="n">sync_workers</span><span class="p">();</span>
+
+   <span class="c1">// Perform this core&#39;s portion of &quot;a.*b&quot;, and store to RAM.</span>
+   <span class="c1">// The indexing for vect_b_sp depends on if it was stored in the tile-scope TSP,</span>
+   <span class="c1">// or in the core-scope L0 scratchpad.</span>
+   <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">MULTS_PER_THREAD</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+      <span class="kt">int</span> <span class="n">ac_ind</span> <span class="o">=</span> <span class="n">thread_offset</span> <span class="o">+</span> <span class="n">i</span><span class="o">*</span><span class="n">coarse_incr</span><span class="p">;</span>
+      <span class="cp">#if (VECT_B_SP_OPTION == 1)</span>
+         <span class="kt">int</span> <span class="n">b_ind</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+      <span class="cp">#elif (VECT_B_SP_OPTION == 2)</span>
+         <span class="kt">int</span> <span class="n">b_ind</span> <span class="o">=</span> <span class="n">ac_ind</span><span class="p">;</span>
+      <span class="cp">#endif</span>
+
+      <span class="n">args</span><span class="p">.</span><span class="n">vect_c</span><span class="p">[</span><span class="n">ac_ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">vect_a_sp</span><span class="p">[</span><span class="n">ac_ind</span><span class="p">]</span> <span class="o">*</span> <span class="n">vect_b_sp</span><span class="p">[</span><span class="n">b_ind</span><span class="p">];</span>
+   <span class="p">}</span>
+
+   <span class="c1">// Send &#39;1&#39; back to the manager.</span>
+   <span class="n">QIO_PUSH</span><span class="p">(</span><span class="n">MGR_PORT</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+
+   <span class="c1">// Add a memory barrier to match that in the manager&#39;s routine. Although workers do not handle</span>
+   <span class="c1">// any cache control inside the function, they will still participate in synchronization.</span>
+   <span class="n">mem_barrier_all</span><span class="p">();</span>
+
+   <span class="c1">// Don&#39;t forget to deallocate!</span>
+   <span class="cp">#if (VECT_B_SP_OPTION == 1)</span>
+      <span class="n">FREE_L0</span><span class="p">(</span><span class="n">vect_b_sp</span><span class="p">);</span>
+   <span class="cp">#endif</span>
+<span class="p">}</span>
+
+<span class="c1">// [9] Closing remarks</span>
+<span class="c1">// ---------------------------------------------</span>
+<span class="cm">/*</span>
+<span class="cm">   Remember there are 3 things that are a bit unusual, but that a test must have at minimum!</span>
+
+<span class="cm">      1. main_sync()</span>
+<span class="cm">      2. RT_INIT()</span>
+<span class="cm">      3. test_startup() and test_cleanup()</span>
+
+<span class="cm">   In addition, code can optionally use RESULT_REG to interact with the testbench and control</span>
+<span class="cm">   success/failure reporting, which can be useful for high-level regression testing.</span>
+
+<span class="cm">   When debugging, the first thing to check is that pointers to RAM, caches, etc., are OK.</span>
+<span class="cm">   E.g., if you check a pointer to RAM and it&#39;s value is 0x0000_0202, well, that&#39;s actually</span>
+<span class="cm">   pointing to something in instruction memory (true story, I spent 2 hours debugging some</span>
+<span class="cm">   code because I forgot the &quot;()&quot; on GET_RAM_BASE(); the variable was storing a function pointer,</span>
+<span class="cm">   and the type cast was perfectly legal). However, remember that pointers returned from MALLOC_L0</span>
+<span class="cm">   *should* actually reside in the instruction memory.</span>
+<span class="cm">*/</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="hello_world.html" class="btn btn-neutral float-right" title="5. hello_world.c" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="guidelines.html" class="btn btn-neutral float-left" title="3. Programming Guidelines &amp; Gotchas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, tmj-devs
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

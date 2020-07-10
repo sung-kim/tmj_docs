@@ -11,6 +11,8 @@ TMJ Software Documentation
    src/introduction
    src/api
    src/guidelines
+   src/point_prod_demo
+   src/hello_world
 
 ..   gem5_comparison
 ..   more
