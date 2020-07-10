@@ -1,7 +1,7 @@
 # Minimal makefile for Sphinx documentation
 # vim: noexpandtab tabstop=3 softtabstop=3 shiftwidth=3
 
-.PHONY: help Makefile publish
+.PHONY: help publish clean html
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
@@ -19,7 +19,7 @@ html: Makefile
 	doxygen
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-publish:
+publish: clean html
 	@mkdir -p $(PUBLISHDIR)
 	make -C ./ html
 	@# cleanup unneeded build outputs and organize for github pages
