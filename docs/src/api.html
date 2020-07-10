@@ -1,0 +1,1118 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html4" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>2. TMJ Header-only Libraries &mdash; tmj  documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/overrides.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="3. Programming Guidelines &amp; Gotchas" href="guidelines.html" />
+    <link rel="prev" title="1. Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> tmj
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                Hardware v0.5 | API v0.5.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Table of Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">2. TMJ Header-only Libraries</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#thread-identification">2.1. Thread identification</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-thread-indices">2.1.1. Basic thread indices</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#spatial-coordinates">2.1.2. Spatial coordinates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#low-level-thread-communication-qio">2.2. Low-level thread communication (QIO)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#push-pop-operations">2.2.1. Push/pop operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#status-flags">2.2.2. Status flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#load-store-intrinsics">2.3. Load/store intrinsics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#register-to-register-intrinsics">2.4. Register-to-register intrinsics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">2.4.1. Push/pop operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#control">2.4.2. Control</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#software-prefetching">2.5. Software prefetching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#l1-cache-mode-configuration">2.6. L1 cache mode configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-control">2.6.1. Configuration control</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#configuration-argument-macros">2.6.2. Configuration argument macros</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#l1-queue-mode">2.7. L1 queue mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">2.7.1. Push/pop operations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">2.7.2. Spatial coordinates</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#low-level-cache-invalidation">2.8. Low-level cache invalidation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#low-level-threading-primitives">2.9. Low-level threading primitives</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#mutexes">2.9.1. Mutexes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#synchronization-barriers">2.9.2. Synchronization barriers</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#abstracted-runtime-api">2.10. Abstracted Runtime API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#setup">2.10.1. Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-synchronization">2.10.2. Thread synchronization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-address-getters">2.10.3. Memory address getters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-allocation">2.10.4. Memory allocation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#memory-barriers">2.10.5. Memory barriers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#thread-communication">2.10.6. Thread communication</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#test-utilities">2.11. Test utilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#debug-aids">2.12. Debug aids</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#line-breaking-prints">2.12.1. Line breaking prints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#non-line-breaking-prints">2.12.2. Non-line breaking prints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#debug-macros">2.12.3. Debug macros</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="guidelines.html">3. Programming Guidelines &amp; Gotchas</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">tmj</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>2. TMJ Header-only Libraries</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/src/api.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tmj-header-only-libraries">
+<h1>2. TMJ Header-only Libraries<a class="headerlink" href="#tmj-header-only-libraries" title="Permalink to this headline">¶</a></h1>
+<p>TMJ includes a set of headers to abstract away implementation-specific details such as barrier synchronization, and implementation-details related to the ARM M4 cores.</p>
+<p>The main library functionality and header organization is partitioned as follows
+(from lowest level of abstraction to highest):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Header</th>
+<th class="head">Brief</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="file docutils literal notranslate"><span class="pre">cm4_hal.h</span></code></td>
+<td>Various ASM intrinsics and Cortex M4-specific config</td>
+</tr>
+<tr class="row-odd"><td><code class="file docutils literal notranslate"><span class="pre">tmj_map.h</span></code></td>
+<td>Memory maps and TMJ microarchitecture-specific typedefs</td>
+</tr>
+<tr class="row-even"><td><code class="file docutils literal notranslate"><span class="pre">tmj_thread.h</span></code></td>
+<td>Threading and synchronization primitives</td>
+</tr>
+<tr class="row-odd"><td><code class="file docutils literal notranslate"><span class="pre">tmj_hal.h</span></code></td>
+<td>Baremetal hardware abstraction layer (HAL) for app development</td>
+</tr>
+<tr class="row-even"><td><code class="file docutils literal notranslate"><span class="pre">tmj_rt_basic.h</span></code></td>
+<td>Abstracted runtime API and misc helpers, built on the HAL</td>
+</tr>
+</tbody>
+</table>
+<p>We only document <code class="file docutils literal notranslate"><span class="pre">tmj_rt_basic.h</span></code> and <code class="file docutils literal notranslate"><span class="pre">tmj_hal.h</span></code> here, since apps will generally not need to
+interact with methods from other headers.</p>
+<p>Besides <code class="file docutils literal notranslate"><span class="pre">tmj_rt_basic.h</span></code> and <code class="file docutils literal notranslate"><span class="pre">tmj_hal.h</span></code>,
+there’s one more header that apps should include: <code class="file docutils literal notranslate"><span class="pre">test_util.h</span></code>.
+This file implements several methods required for running on physical hardware.</p>
+<p>APIs not listed under <a class="reference internal" href="#abstracted-runtime-api"><span class="std std-ref">Abstracted Runtime API</span></a> are not associated with any
+additional software-managed state (beyond what is required for the C/C++ runtime).
+APIs that <cite>are</cite> listed under <a class="reference internal" href="#abstracted-runtime-api"><span class="std std-ref">Abstracted Runtime API</span></a> have special
+software-managed data structures, so calling <a class="reference internal" href="#_CPPv47RT_INIT8uint32_t8uint32_t8uint32_t12r2r_switch_e" title="RT_INIT"><code class="xref cpp cpp-func docutils literal notranslate"><span class="pre">RT_INIT()</span></code></a> is necessary before use.</p>
+<div class="section" id="thread-identification">
+<h2>2.1. Thread identification<a class="headerlink" href="#thread-identification" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-thread-indices">
+<h3>2.1.1. Basic thread indices<a class="headerlink" href="#basic-thread-indices" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv47CORE_IDv">
+<span id="_CPPv37CORE_IDv"></span><span id="_CPPv27CORE_IDv"></span><span id="CORE_ID__void"></span><span class="target" id="tmj__hal_8h_1acc6594873c36ea5b1a904a8188a92fa1"></span>uint32_t <code class="descname">CORE_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47CORE_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the thread index of the calling core. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv46GPE_IDv">
+<span id="_CPPv36GPE_IDv"></span><span id="_CPPv26GPE_IDv"></span><span id="GPE_ID__void"></span><span class="target" id="tmj__hal_8h_1ab264a47bf55628145d2910b8d80d306c"></span>uint32_t <code class="descname">GPE_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv46GPE_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+<ul class="simple">
+<li>Identical to <a class="reference internal" href="#tmj__hal_8h_1acc6594873c36ea5b1a904a8188a92fa1"><span class="std std-ref">CORE_ID()</span></a> </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv47TILE_IDv">
+<span id="_CPPv37TILE_IDv"></span><span id="_CPPv27TILE_IDv"></span><span id="TILE_ID__void"></span><span class="target" id="tmj__hal_8h_1acbeb622c763b4f965fceeb6afe85aaf6"></span>uint32_t <code class="descname">TILE_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47TILE_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Get the tile index of the calling core. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv411LCP_TILE_IDv">
+<span id="_CPPv311LCP_TILE_IDv"></span><span id="_CPPv211LCP_TILE_IDv"></span><span id="LCP_TILE_ID__void"></span><span class="target" id="tmj__hal_8h_1ae45287ba41294c4d482e5d6e09512833"></span>uint32_t <code class="descname">LCP_TILE_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411LCP_TILE_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+<ul class="simple">
+<li>Identical to <a class="reference internal" href="#tmj__hal_8h_1acbeb622c763b4f965fceeb6afe85aaf6"><span class="std std-ref">TILE_ID()</span></a> </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410IS_MANAGERv">
+<span id="_CPPv310IS_MANAGERv"></span><span id="_CPPv210IS_MANAGERv"></span><span id="IS_MANAGER__void"></span><span class="target" id="tmj__hal_8h_1ab208294f450ff27a6c29a7b486374fb3"></span>bool <code class="descname">IS_MANAGER</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410IS_MANAGERv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Returns true if the calling core is a tile manager. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="spatial-coordinates">
+<h3>2.1.2. Spatial coordinates<a class="headerlink" href="#spatial-coordinates" title="Permalink to this headline">¶</a></h3>
+<p>These APIs provide spatial positions of worker cores within a tile.</p>
+<dl class="function">
+<dt id="_CPPv411CORE_ROW_IDv">
+<span id="_CPPv311CORE_ROW_IDv"></span><span id="_CPPv211CORE_ROW_IDv"></span><span id="CORE_ROW_ID__void"></span><span class="target" id="tmj__hal_8h_1ae8429d30e1528c7afbc6362fd5052834"></span>uint32_t <code class="descname">CORE_ROW_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411CORE_ROW_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv411CORE_COL_IDv">
+<span id="_CPPv311CORE_COL_IDv"></span><span id="_CPPv211CORE_COL_IDv"></span><span id="CORE_COL_ID__void"></span><span class="target" id="tmj__hal_8h_1a0a3a9dc228ed820e32ec4990aa4efd4c"></span>uint32_t <code class="descname">CORE_COL_ID</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411CORE_COL_IDv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv417CORE_ON_LEFT_EDGE8uint32_t">
+<span id="_CPPv317CORE_ON_LEFT_EDGE8uint32_t"></span><span id="_CPPv217CORE_ON_LEFT_EDGE8uint32_t"></span><span id="CORE_ON_LEFT_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1acc7ac9011ce5fd00855694f0376f0caf"></span>bool <code class="descname">CORE_ON_LEFT_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417CORE_ON_LEFT_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv418CORE_ON_RIGHT_EDGE8uint32_t">
+<span id="_CPPv318CORE_ON_RIGHT_EDGE8uint32_t"></span><span id="_CPPv218CORE_ON_RIGHT_EDGE8uint32_t"></span><span id="CORE_ON_RIGHT_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1a83fa34f28cf421025c45ada71ddb6567"></span>bool <code class="descname">CORE_ON_RIGHT_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418CORE_ON_RIGHT_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv416CORE_ON_TOP_EDGE8uint32_t">
+<span id="_CPPv316CORE_ON_TOP_EDGE8uint32_t"></span><span id="_CPPv216CORE_ON_TOP_EDGE8uint32_t"></span><span id="CORE_ON_TOP_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1ade95c0f905f20ad043684bed14a303e2"></span>bool <code class="descname">CORE_ON_TOP_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416CORE_ON_TOP_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419CORE_ON_BOTTOM_EDGE8uint32_t">
+<span id="_CPPv319CORE_ON_BOTTOM_EDGE8uint32_t"></span><span id="_CPPv219CORE_ON_BOTTOM_EDGE8uint32_t"></span><span id="CORE_ON_BOTTOM_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1aceb886f5106658c6b2f84201938e2717"></span>bool <code class="descname">CORE_ON_BOTTOM_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419CORE_ON_BOTTOM_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="low-level-thread-communication-qio">
+<h2>2.2. Low-level thread communication (QIO)<a class="headerlink" href="#low-level-thread-communication-qio" title="Permalink to this headline">¶</a></h2>
+<p>These exercise the “work queues” between a manager and the worker cores within a tile.
+IN/OUT indicates direction from the point of the view of the calling core.</p>
+<div class="section" id="push-pop-operations">
+<h3>2.2.1. Push/pop operations<a class="headerlink" href="#push-pop-operations" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv47QIO_POP8uint32_t">
+<span id="_CPPv37QIO_POP8uint32_t"></span><span id="_CPPv27QIO_POP8uint32_t"></span><span id="QIO_POP__uint32_t"></span><span class="target" id="tmj__hal_8h_1a63561b8de4c8d8ce6de7b41ab67d652c"></span>qio_t <code class="descname">QIO_POP</code><span class="sig-paren">(</span>uint32_t <em>port</em> = 0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47QIO_POP8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv48QIO_PUSH8uint32_t5qio_t">
+<span id="_CPPv38QIO_PUSH8uint32_t5qio_t"></span><span id="_CPPv28QIO_PUSH8uint32_t5qio_t"></span><span id="QIO_PUSH__uint32_t.qio_t"></span><span class="target" id="tmj__hal_8h_1a7a117ed3fbf8d250fdcf33932c347a76"></span>void <code class="descname">QIO_PUSH</code><span class="sig-paren">(</span>uint32_t <em>port</em>, qio_t <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48QIO_PUSH8uint32_t5qio_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414FREE_GPEQ_PUSHR8uint32_t8uint32_t">
+<span id="_CPPv314FREE_GPEQ_PUSHR8uint32_t8uint32_t"></span><span id="_CPPv214FREE_GPEQ_PUSHR8uint32_t8uint32_t"></span><span id="FREE_GPEQ_PUSH__uint32_tR.uint32_t"></span><span class="target" id="tmj__hal_8h_1a82bc7759ee038de772794c6b5bee3855"></span><em class="property">static</em> void <code class="descname">FREE_GPEQ_PUSH</code><span class="sig-paren">(</span>uint32_t &amp;<em>gpe_id</em>, uint32_t <em>work_item</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414FREE_GPEQ_PUSHR8uint32_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+ </p>
+</dd></dl>
+
+</div>
+<div class="section" id="status-flags">
+<h3>2.2.2. Status flags<a class="headerlink" href="#status-flags" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv414QIO_IN_ISEMPTY8uint32_t">
+<span id="_CPPv314QIO_IN_ISEMPTY8uint32_t"></span><span id="_CPPv214QIO_IN_ISEMPTY8uint32_t"></span><span id="QIO_IN_ISEMPTY__uint32_t"></span><span class="target" id="tmj__hal_8h_1a78262d128881a83eade060d9a42fd73d"></span>bool <code class="descname">QIO_IN_ISEMPTY</code><span class="sig-paren">(</span>uint32_t <em>port</em> = 0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414QIO_IN_ISEMPTY8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv413QIO_IN_ISFULL8uint32_t">
+<span id="_CPPv313QIO_IN_ISFULL8uint32_t"></span><span id="_CPPv213QIO_IN_ISFULL8uint32_t"></span><span id="QIO_IN_ISFULL__uint32_t"></span><span class="target" id="tmj__hal_8h_1ab22a85b925f7cf64c97e4a262dfdad2d"></span>bool <code class="descname">QIO_IN_ISFULL</code><span class="sig-paren">(</span>uint32_t <em>port</em> = 0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413QIO_IN_ISFULL8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv415QIO_OUT_ISEMPTY8uint32_t">
+<span id="_CPPv315QIO_OUT_ISEMPTY8uint32_t"></span><span id="_CPPv215QIO_OUT_ISEMPTY8uint32_t"></span><span id="QIO_OUT_ISEMPTY__uint32_t"></span><span class="target" id="tmj__hal_8h_1ad08c3b479e3417ebe23b37dde8e61fb3"></span>bool <code class="descname">QIO_OUT_ISEMPTY</code><span class="sig-paren">(</span>uint32_t <em>port</em> = 0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415QIO_OUT_ISEMPTY8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414QIO_OUT_ISFULL8uint32_t">
+<span id="_CPPv314QIO_OUT_ISFULL8uint32_t"></span><span id="_CPPv214QIO_OUT_ISFULL8uint32_t"></span><span id="QIO_OUT_ISFULL__uint32_t"></span><span class="target" id="tmj__hal_8h_1a30055a4e6353b97398dc54e5519ddb93"></span>bool <code class="descname">QIO_OUT_ISFULL</code><span class="sig-paren">(</span>uint32_t <em>port</em> = 0<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414QIO_OUT_ISFULL8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The QIO methods above implement the same functionality as the gem5 LCPQ/GPEQ APIs, but with simplified semantics.
+For example, in gem5, a core will call a group of methods depending on if the core is a manager or worker:
+<code class="code docutils literal notranslate"><span class="pre">LCPQ_&lt;POP/PUSH&gt;</span></code> or <code class="code docutils literal notranslate"><span class="pre">GPEQ_&lt;POP/PUSH&gt;</span></code>.
+In TMJ, <code class="code docutils literal notranslate"><span class="pre">QIO_&lt;POP/PUSH&gt;</span></code> replaces the LCPQ/GPEQ methods and is callable by both workers and managers.</p>
+<p>It’s illustrative to see how TMJ implements the methods provided for gem5 compatibility:</p>
+<div class="last highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// gem5 LCP calls</span>
+<span class="cp">#define              GPEQ_PUSH(gpe_id, data)        QIO_PUSH(gpe_id, data)</span>
+<span class="cp">#define              LCPQ_POP(gpe_id)               QIO_POP(gpe_id)</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">GPEQ_ISEMPTY</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">gpe_id</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_OUT_ISEMPTY</span><span class="p">(</span><span class="n">gpe_id</span><span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">GPEQ_ISFULL</span>  <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">gpe_id</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_OUT_ISFULL</span> <span class="p">(</span><span class="n">gpe_id</span><span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">LCPQ_ISEMPTY</span> <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">gpe_id</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_IN_ISEMPTY</span> <span class="p">(</span><span class="n">gpe_id</span><span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">LCPQ_ISFULL</span>  <span class="p">(</span><span class="kt">uint32_t</span> <span class="n">gpe_id</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_IN_ISFULL</span>  <span class="p">(</span><span class="n">gpe_id</span><span class="p">);</span> <span class="p">}</span>
+
+<span class="c1">// gem5 GPE calls</span>
+<span class="cp">#define              LCPQ_PUSH(data)                QIO_PUSH(data)</span>
+<span class="cp">#define              GPEQ_POP(_void)                QIO_POP()</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">GPEQ_ISEMPTY</span> <span class="p">(</span><span class="kt">void</span>           <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_IN_ISEMPTY</span> <span class="p">(</span>      <span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">GPEQ_ISFULL</span>  <span class="p">(</span><span class="kt">void</span>           <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_IN_ISFULL</span>  <span class="p">(</span>      <span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">LCPQ_ISEMPTY</span> <span class="p">(</span><span class="kt">void</span>           <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_OUT_ISEMPTY</span><span class="p">(</span>      <span class="p">);</span> <span class="p">}</span>
+<span class="kr">__inline</span> <span class="k">static</span> <span class="kt">bool</span> <span class="nf">LCPQ_ISFULL</span>  <span class="p">(</span><span class="kt">void</span>           <span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">QIO_OUT_ISFULL</span> <span class="p">(</span>      <span class="p">);</span> <span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="section" id="load-store-intrinsics">
+<h2>2.3. Load/store intrinsics<a class="headerlink" href="#load-store-intrinsics" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv49LOAD_WORDPv">
+<span id="_CPPv39LOAD_WORDPv"></span><span id="_CPPv29LOAD_WORDPv"></span><span id="LOAD_WORD__voidP"></span><span class="target" id="tmj__hal_8h_1a4f96aeb1a13d2f67c725784af64f932f"></span>uint32_t <code class="descname">LOAD_WORD</code><span class="sig-paren">(</span>void *<em>addr</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49LOAD_WORDPv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+ </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv415LOAD_WORD_FLOATPv">
+<span id="_CPPv315LOAD_WORD_FLOATPv"></span><span id="_CPPv215LOAD_WORD_FLOATPv"></span><span id="LOAD_WORD_FLOAT__voidP"></span><span class="target" id="tmj__hal_8h_1a317ba6c19b013358cd42d1a0c3d2a717"></span>float <code class="descname">LOAD_WORD_FLOAT</code><span class="sig-paren">(</span>void *<em>addr</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415LOAD_WORD_FLOATPv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+ </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410STORE_WORDPv8uint32_t">
+<span id="_CPPv310STORE_WORDPv8uint32_t"></span><span id="_CPPv210STORE_WORDPv8uint32_t"></span><span id="STORE_WORD__voidP.uint32_t"></span><span class="target" id="tmj__hal_8h_1a0b754a15b6a3d34962aeec1310e438ef"></span>void <code class="descname">STORE_WORD</code><span class="sig-paren">(</span>void *<em>addr</em>, uint32_t <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410STORE_WORDPv8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+ </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv416STORE_WORD_FLOATPvf">
+<span id="_CPPv316STORE_WORD_FLOATPvf"></span><span id="_CPPv216STORE_WORD_FLOATPvf"></span><span id="STORE_WORD_FLOAT__voidP.float"></span><span class="target" id="tmj__hal_8h_1a2aa9072cb04e0446c313d7c861b0bdac"></span>void <code class="descname">STORE_WORD_FLOAT</code><span class="sig-paren">(</span>void *<em>addr</em>, float <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416STORE_WORD_FLOATPvf" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+ </p>
+</dd></dl>
+
+</div>
+<div class="section" id="register-to-register-intrinsics">
+<h2>2.4. Register-to-register intrinsics<a class="headerlink" href="#register-to-register-intrinsics" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>2.4.1. Push/pop operations<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p><strong>For fixed point operands:</strong></p>
+<dl class="function">
+<dt id="_CPPv412R2R_POP_WESTv">
+<span id="_CPPv312R2R_POP_WESTv"></span><span id="_CPPv212R2R_POP_WESTv"></span><span id="R2R_POP_WEST__void"></span><span class="target" id="tmj__hal_8h_1a79468b238783a00e3cbb3b92604aaa14"></span>uint32_t <code class="descname">R2R_POP_WEST</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412R2R_POP_WESTv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412R2R_POP_EASTv">
+<span id="_CPPv312R2R_POP_EASTv"></span><span id="_CPPv212R2R_POP_EASTv"></span><span id="R2R_POP_EAST__void"></span><span class="target" id="tmj__hal_8h_1adb31c37a54f892c44c17805c74a80722"></span>uint32_t <code class="descname">R2R_POP_EAST</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412R2R_POP_EASTv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv413R2R_POP_NORTHv">
+<span id="_CPPv313R2R_POP_NORTHv"></span><span id="_CPPv213R2R_POP_NORTHv"></span><span id="R2R_POP_NORTH__void"></span><span class="target" id="tmj__hal_8h_1ab4eef60e2027d1bfbc031245c54b3bc5"></span>uint32_t <code class="descname">R2R_POP_NORTH</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413R2R_POP_NORTHv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv413R2R_POP_SOUTHv">
+<span id="_CPPv313R2R_POP_SOUTHv"></span><span id="_CPPv213R2R_POP_SOUTHv"></span><span id="R2R_POP_SOUTH__void"></span><span class="target" id="tmj__hal_8h_1a133679bb63fbafcdd711d30af1d7f05e"></span>uint32_t <code class="descname">R2R_POP_SOUTH</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413R2R_POP_SOUTHv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv413R2R_PUSH_WEST8uint32_t">
+<span id="_CPPv313R2R_PUSH_WEST8uint32_t"></span><span id="_CPPv213R2R_PUSH_WEST8uint32_t"></span><span id="R2R_PUSH_WEST__uint32_t"></span><span class="target" id="tmj__hal_8h_1a4d489813723d9baafc24489264246294"></span>void <code class="descname">R2R_PUSH_WEST</code><span class="sig-paren">(</span>uint32_t <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413R2R_PUSH_WEST8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv413R2R_PUSH_EAST8uint32_t">
+<span id="_CPPv313R2R_PUSH_EAST8uint32_t"></span><span id="_CPPv213R2R_PUSH_EAST8uint32_t"></span><span id="R2R_PUSH_EAST__uint32_t"></span><span class="target" id="tmj__hal_8h_1a840a1f1147f7cbea74c9cec886630f29"></span>void <code class="descname">R2R_PUSH_EAST</code><span class="sig-paren">(</span>uint32_t <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413R2R_PUSH_EAST8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414R2R_PUSH_NORTH8uint32_t">
+<span id="_CPPv314R2R_PUSH_NORTH8uint32_t"></span><span id="_CPPv214R2R_PUSH_NORTH8uint32_t"></span><span id="R2R_PUSH_NORTH__uint32_t"></span><span class="target" id="tmj__hal_8h_1ab885c92bb8408b76572859446c46c2c2"></span>void <code class="descname">R2R_PUSH_NORTH</code><span class="sig-paren">(</span>uint32_t <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414R2R_PUSH_NORTH8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414R2R_PUSH_SOUTH8uint32_t">
+<span id="_CPPv314R2R_PUSH_SOUTH8uint32_t"></span><span id="_CPPv214R2R_PUSH_SOUTH8uint32_t"></span><span id="R2R_PUSH_SOUTH__uint32_t"></span><span class="target" id="tmj__hal_8h_1a801dfbc06b5136d17f193d2b656b612f"></span>void <code class="descname">R2R_PUSH_SOUTH</code><span class="sig-paren">(</span>uint32_t <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414R2R_PUSH_SOUTH8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<p><strong>For floating point operands:</strong></p>
+<dl class="function">
+<dt id="_CPPv418R2R_POP_WEST_FLOATv">
+<span id="_CPPv318R2R_POP_WEST_FLOATv"></span><span id="_CPPv218R2R_POP_WEST_FLOATv"></span><span id="R2R_POP_WEST_FLOAT__void"></span><span class="target" id="tmj__hal_8h_1a63b62d7308ab44d9f9fcfd99f58ad71e"></span><em class="property">volatile</em> float <code class="descname">R2R_POP_WEST_FLOAT</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418R2R_POP_WEST_FLOATv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv418R2R_POP_EAST_FLOATv">
+<span id="_CPPv318R2R_POP_EAST_FLOATv"></span><span id="_CPPv218R2R_POP_EAST_FLOATv"></span><span id="R2R_POP_EAST_FLOAT__void"></span><span class="target" id="tmj__hal_8h_1a74bf1ed92c913e402d4843813ff72e47"></span><em class="property">volatile</em> float <code class="descname">R2R_POP_EAST_FLOAT</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418R2R_POP_EAST_FLOATv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419R2R_POP_NORTH_FLOATv">
+<span id="_CPPv319R2R_POP_NORTH_FLOATv"></span><span id="_CPPv219R2R_POP_NORTH_FLOATv"></span><span id="R2R_POP_NORTH_FLOAT__void"></span><span class="target" id="tmj__hal_8h_1ab942ea7dff38b4cc6439093f4331bd92"></span><em class="property">volatile</em> float <code class="descname">R2R_POP_NORTH_FLOAT</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419R2R_POP_NORTH_FLOATv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419R2R_POP_SOUTH_FLOATv">
+<span id="_CPPv319R2R_POP_SOUTH_FLOATv"></span><span id="_CPPv219R2R_POP_SOUTH_FLOATv"></span><span id="R2R_POP_SOUTH_FLOAT__void"></span><span class="target" id="tmj__hal_8h_1a4d00e376fa4b08957188a0b26e071376"></span><em class="property">volatile</em> float <code class="descname">R2R_POP_SOUTH_FLOAT</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419R2R_POP_SOUTH_FLOATv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419R2R_PUSH_WEST_FLOATf">
+<span id="_CPPv319R2R_PUSH_WEST_FLOATf"></span><span id="_CPPv219R2R_PUSH_WEST_FLOATf"></span><span id="R2R_PUSH_WEST_FLOAT__float"></span><span class="target" id="tmj__hal_8h_1adc7bb979fef4cf2f1c79d3bfb3bc4423"></span>void <code class="descname">R2R_PUSH_WEST_FLOAT</code><span class="sig-paren">(</span>float <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419R2R_PUSH_WEST_FLOATf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419R2R_PUSH_EAST_FLOATf">
+<span id="_CPPv319R2R_PUSH_EAST_FLOATf"></span><span id="_CPPv219R2R_PUSH_EAST_FLOATf"></span><span id="R2R_PUSH_EAST_FLOAT__float"></span><span class="target" id="tmj__hal_8h_1af37324b9755cc68f09868634c5215f6a"></span>void <code class="descname">R2R_PUSH_EAST_FLOAT</code><span class="sig-paren">(</span>float <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419R2R_PUSH_EAST_FLOATf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv420R2R_PUSH_NORTH_FLOATf">
+<span id="_CPPv320R2R_PUSH_NORTH_FLOATf"></span><span id="_CPPv220R2R_PUSH_NORTH_FLOATf"></span><span id="R2R_PUSH_NORTH_FLOAT__float"></span><span class="target" id="tmj__hal_8h_1a4eccf59b700f32c531fbdec5efa1cbe4"></span>void <code class="descname">R2R_PUSH_NORTH_FLOAT</code><span class="sig-paren">(</span>float <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420R2R_PUSH_NORTH_FLOATf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv420R2R_PUSH_SOUTH_FLOATf">
+<span id="_CPPv320R2R_PUSH_SOUTH_FLOATf"></span><span id="_CPPv220R2R_PUSH_SOUTH_FLOATf"></span><span id="R2R_PUSH_SOUTH_FLOAT__float"></span><span class="target" id="tmj__hal_8h_1a749b8cef7b6fb02f04422b305dac8533"></span>void <code class="descname">R2R_PUSH_SOUTH_FLOAT</code><span class="sig-paren">(</span>float <em>d</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420R2R_PUSH_SOUTH_FLOATf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The R2R APIs were originally written to be C99 compatible, but enabling basic C++
+constructs ended up not adding much overhead in terms of binary size anyway. The R2R_&lt;PUSH/POP&gt;
+methods might get replaced with templated functions, instead of differentiating types
+with explicitly different function names.</p>
+</div>
+</div>
+<div class="section" id="control">
+<h3>2.4.2. Control<a class="headerlink" href="#control" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv410R2R_ENABLEv">
+<span id="_CPPv310R2R_ENABLEv"></span><span id="_CPPv210R2R_ENABLEv"></span><span id="R2R_ENABLE__void"></span><span class="target" id="tmj__hal_8h_1a15fe3ce98a976df6f29617d8491adf5b"></span>void <code class="descname">R2R_ENABLE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410R2R_ENABLEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enable override on physical R2R registers. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv411R2R_DISABLEv">
+<span id="_CPPv311R2R_DISABLEv"></span><span id="_CPPv211R2R_DISABLEv"></span><span id="R2R_DISABLE__void"></span><span class="target" id="tmj__hal_8h_1a1b38e69d2b9876914ae9caafab5b00b4"></span>void <code class="descname">R2R_DISABLE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411R2R_DISABLEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Disable override on physical R2R registers. </p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="software-prefetching">
+<h2>2.5. Software prefetching<a class="headerlink" href="#software-prefetching" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv48PREFETCHP8uint32_t">
+<span id="_CPPv38PREFETCHP8uint32_t"></span><span id="_CPPv28PREFETCHP8uint32_t"></span><span id="PREFETCH__uint32_tP"></span><span class="target" id="tmj__hal_8h_1a564cab4c6220274927ef1e3505f4eadd"></span>void <code class="descname">PREFETCH</code><span class="sig-paren">(</span>uint32_t *<em>addr</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48PREFETCHP8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Perform a background load to the given address<ul class="simple">
+<li>the calling core does not block </li>
+</ul>
+</p>
+</dd></dl>
+
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The hardware that implements prefetching is tested on only the most basic load/store sequences!
+There is high chance of breakage and/or unintuitive behavior.</p>
+</div>
+</div>
+<div class="section" id="l1-cache-mode-configuration">
+<h2>2.6. L1 cache mode configuration<a class="headerlink" href="#l1-cache-mode-configuration" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="configuration-control">
+<h3>2.6.1. Configuration control<a class="headerlink" href="#configuration-control" title="Permalink to this headline">¶</a></h3>
+<p>These methods return or accept one of the macros defined above.</p>
+<dl class="function">
+<dt id="_CPPv415SET_L1_MODE_SEQ8uint32_t">
+<span id="_CPPv315SET_L1_MODE_SEQ8uint32_t"></span><span id="_CPPv215SET_L1_MODE_SEQ8uint32_t"></span><span id="SET_L1_MODE_SEQ__uint32_t"></span><span class="target" id="tmj__hal_8h_1aeac1f8d9b0139b44341eec17fc19e6da"></span>void <code class="descname">SET_L1_MODE_SEQ</code><span class="sig-paren">(</span>uint32_t <em>pattern</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415SET_L1_MODE_SEQ8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv415GET_L1_MODE_SEQv">
+<span id="_CPPv315GET_L1_MODE_SEQv"></span><span id="_CPPv215GET_L1_MODE_SEQv"></span><span id="GET_L1_MODE_SEQ__void"></span><span class="target" id="tmj__hal_8h_1a32c719fd7eec2489ea56c9484dbf0fc0"></span>uint32_t <code class="descname">GET_L1_MODE_SEQ</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415GET_L1_MODE_SEQv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="configuration-argument-macros">
+<h3>2.6.2. Configuration argument macros<a class="headerlink" href="#configuration-argument-macros" title="Permalink to this headline">¶</a></h3>
+<p>The following macros define the available L1 cache reconfigurations.
+We define a cache configuration as the combination of a <cite>scope</cite> (address scope) and <cite>control type</cite>.
+Someday, we will get around to changing these to enums and updating all the unit tests …</p>
+<dl class="macro">
+<dt id="c.CTRL_SP_SCOPE_PRIV">
+<code class="descname">CTRL_SP_SCOPE_PRIV</code><a class="headerlink" href="#c.CTRL_SP_SCOPE_PRIV" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;control, scope&gt; = scratchpad, private</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.CTRL_SP_SCOPE_SHRD">
+<code class="descname">CTRL_SP_SCOPE_SHRD</code><a class="headerlink" href="#c.CTRL_SP_SCOPE_SHRD" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;control, scope&gt; = scratchpad, shared</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.CTRL_CA_SCOPE_PRIV">
+<code class="descname">CTRL_CA_SCOPE_PRIV</code><a class="headerlink" href="#c.CTRL_CA_SCOPE_PRIV" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;control, scope&gt; = cache, private</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.CTRL_CA_SCOPE_SHRD">
+<code class="descname">CTRL_CA_SCOPE_SHRD</code><a class="headerlink" href="#c.CTRL_CA_SCOPE_SHRD" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;control, scope&gt; = cache, shared</p>
+</dd></dl>
+
+<dl class="macro">
+<dt id="c.CTRL_RW_Q1_SCOPE_OTHER">
+<code class="descname">CTRL_RW_Q1_SCOPE_OTHER</code><a class="headerlink" href="#c.CTRL_RW_Q1_SCOPE_OTHER" title="Permalink to this definition">¶</a></dt>
+<dd><p>&lt;control, scope&gt; = queue, other <a class="footnote-reference" href="#id3" id="id2">[1]</a></p>
+</dd></dl>
+
+<table class="docutils footnote" frame="void" id="id3" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[1]</a></td><td>Although “RW_Q1” is already obvious enough, the “other” scope was added to
+make sure this configuration was totally unambiguous.</td></tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="l1-queue-mode">
+<h2>2.7. L1 queue mode<a class="headerlink" href="#l1-queue-mode" title="Permalink to this headline">¶</a></h2>
+<p>Available with <a class="reference internal" href="#c.CTRL_RW_Q1_SCOPE_OTHER" title="CTRL_RW_Q1_SCOPE_OTHER"><code class="xref c c-macro docutils literal notranslate"><span class="pre">CTRL_RW_Q1_SCOPE_OTHER</span></code></a>.</p>
+<div class="section" id="id4">
+<h3>2.7.1. Push/pop operations<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<p><strong>For fixed point operands:</strong></p>
+<dl class="function">
+<dt id="_CPPv411Q_PUSH_EAST8uint32_t">
+<span id="_CPPv311Q_PUSH_EAST8uint32_t"></span><span id="_CPPv211Q_PUSH_EAST8uint32_t"></span><span id="Q_PUSH_EAST__uint32_t"></span><span class="target" id="tmj__hal_8h_1a423a2daa5fc0acb1b8dc3279a275275c"></span>void <code class="descname">Q_PUSH_EAST</code><span class="sig-paren">(</span>uint32_t <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411Q_PUSH_EAST8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410Q_POP_WESTv">
+<span id="_CPPv310Q_POP_WESTv"></span><span id="_CPPv210Q_POP_WESTv"></span><span id="Q_POP_WEST"></span><span class="target" id="tmj__hal_8h_1a1b1e097b3511fb2e8cf137e1279d7c71"></span>uint32_t <code class="descname">Q_POP_WEST</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410Q_POP_WESTv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<p><strong>For floating point operands:</strong></p>
+<dl class="function">
+<dt id="_CPPv417Q_PUSH_EAST_FLOATf">
+<span id="_CPPv317Q_PUSH_EAST_FLOATf"></span><span id="_CPPv217Q_PUSH_EAST_FLOATf"></span><span id="Q_PUSH_EAST_FLOAT__float"></span><span class="target" id="tmj__hal_8h_1af2f2c6fe84294391f8ae7ebaf737c805"></span>void <code class="descname">Q_PUSH_EAST_FLOAT</code><span class="sig-paren">(</span>float <em>val</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417Q_PUSH_EAST_FLOATf" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv416Q_POP_WEST_FLOATv">
+<span id="_CPPv316Q_POP_WEST_FLOATv"></span><span id="_CPPv216Q_POP_WEST_FLOATv"></span><span id="Q_POP_WEST_FLOAT"></span><span class="target" id="tmj__hal_8h_1a04b03bf6ef2f2d8879b164d9677a404a"></span>float <code class="descname">Q_POP_WEST_FLOAT</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416Q_POP_WEST_FLOATv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="id5">
+<h3>2.7.2. Spatial coordinates<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv411Q_LEFT_EDGE8uint32_t">
+<span id="_CPPv311Q_LEFT_EDGE8uint32_t"></span><span id="_CPPv211Q_LEFT_EDGE8uint32_t"></span><span id="Q_LEFT_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1aa3abe8dab554ce4790e0b094d94b3b4b"></span>bool <code class="descname">Q_LEFT_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411Q_LEFT_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412Q_RIGHT_EDGE8uint32_t">
+<span id="_CPPv312Q_RIGHT_EDGE8uint32_t"></span><span id="_CPPv212Q_RIGHT_EDGE8uint32_t"></span><span id="Q_RIGHT_EDGE__uint32_t"></span><span class="target" id="tmj__hal_8h_1ad2f9f658f6c82cbf183af3248022354a"></span>bool <code class="descname">Q_RIGHT_EDGE</code><span class="sig-paren">(</span>uint32_t <em>core_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412Q_RIGHT_EDGE8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</div>
+<div class="section" id="low-level-cache-invalidation">
+<h2>2.8. Low-level cache invalidation<a class="headerlink" href="#low-level-cache-invalidation" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="_CPPv415MEM_WAIT_L1_ALLv">
+<span id="_CPPv315MEM_WAIT_L1_ALLv"></span><span id="_CPPv215MEM_WAIT_L1_ALLv"></span><span id="MEM_WAIT_L1_ALL__void"></span><span class="target" id="tmj__hal_8h_1a75dd97dad3df3545a57d9b7a7c80d28a"></span>void <code class="descname">MEM_WAIT_L1_ALL</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415MEM_WAIT_L1_ALLv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Wait until the l1 is idle - all banks in the tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv415MEM_WAIT_L2_ALLv">
+<span id="_CPPv315MEM_WAIT_L2_ALLv"></span><span id="_CPPv215MEM_WAIT_L2_ALLv"></span><span id="MEM_WAIT_L2_ALL__void"></span><span class="target" id="tmj__hal_8h_1a11070aa3b3da57a0716556345f291722"></span>void <code class="descname">MEM_WAIT_L2_ALL</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415MEM_WAIT_L2_ALLv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Wait until the l2 is idle - all banks. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410INV_L1_ALLv">
+<span id="_CPPv310INV_L1_ALLv"></span><span id="_CPPv210INV_L1_ALLv"></span><span id="INV_L1_ALL__void"></span><span class="target" id="tmj__hal_8h_1adba9d9d36bc56f2843103f86abb83c8f"></span>void <code class="descname">INV_L1_ALL</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410INV_L1_ALLv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalidate l1 and spin till clean - all banks in tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410INV_L2_ALLv">
+<span id="_CPPv310INV_L2_ALLv"></span><span id="_CPPv210INV_L2_ALLv"></span><span id="INV_L2_ALL__void"></span><span class="target" id="tmj__hal_8h_1a10160ef493cc6b76aad10ce19f22261a"></span>void <code class="descname">INV_L2_ALL</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410INV_L2_ALLv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalidate l2 and spin till clean - all banks. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv411INV_L2_BANK8uint32_t">
+<span id="_CPPv311INV_L2_BANK8uint32_t"></span><span id="_CPPv211INV_L2_BANK8uint32_t"></span><span id="INV_L2_BANK__uint32_t"></span><span class="target" id="tmj__hal_8h_1a896d65a9e6c79410d84c353306866cb1"></span>void <code class="descname">INV_L2_BANK</code><span class="sig-paren">(</span>uint32_t <em>bank_id</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411INV_L2_BANK8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalidate l2 and spin till clean - bank specific. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv48INV_TILEv">
+<span id="_CPPv38INV_TILEv"></span><span id="_CPPv28INV_TILEv"></span><span id="INV_TILE__void"></span><span class="target" id="tmj__hal_8h_1a41283f81c8178188c8f03ec315fae3cf"></span>void <code class="descname">INV_TILE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48INV_TILEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Invalidate l1 and <em>one</em> l2 bank (l2_bank[tile_id])<ul class="simple">
+<li>performs global invalidation, if called by all managers </li>
+</ul>
+</p>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Recall that the L1 and L2 caches in TMJ are incoherent, with a read-allocate/write-through policy.
+This means that writes don’t have to be explicitly flushed across the cache hierarchy, since writes
+will propagate through the caches anyway. However, cores that will load from addresses that were
+updated by other cores <cite>should</cite> perform an invalidation prior to the load(s), so that stale cache lines
+are replaced.</p>
+</div>
+</div>
+<div class="section" id="low-level-threading-primitives">
+<h2>2.9. Low-level threading primitives<a class="headerlink" href="#low-level-threading-primitives" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="mutexes">
+<h3>2.9.1. Mutexes<a class="headerlink" href="#mutexes" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv46lock_t">
+<span id="_CPPv36lock_t"></span><span id="_CPPv26lock_t"></span><span id="lock_t"></span><em class="property">type </em><code class="descname">lock_t</code><a class="headerlink" href="#_CPPv46lock_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A lock variable. This is a uint32_t of 4 bytes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410mutex_initP6lock_t">
+<span id="_CPPv310mutex_initP6lock_t"></span><span id="_CPPv210mutex_initP6lock_t"></span><span id="mutex_init__lock_tP"></span><span class="target" id="tmj__thread_8h_1a81e8dc802626446de6781c3b5c14df34"></span>int <code class="descname">mutex_init</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv46lock_t" title="lock_t">lock_t</a> *<em>lock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410mutex_initP6lock_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize a mutex var. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410mutex_lockP6lock_t">
+<span id="_CPPv310mutex_lockP6lock_t"></span><span id="_CPPv210mutex_lockP6lock_t"></span><span id="mutex_lock__lock_tP"></span><span class="target" id="tmj__thread_8h_1a71de51fa2ae3628c39e017bfd899ece3"></span>int <code class="descname">mutex_lock</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv46lock_t" title="lock_t">lock_t</a> *<em>lock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410mutex_lockP6lock_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Acquire a mutex var. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412mutex_unlockP6lock_t">
+<span id="_CPPv312mutex_unlockP6lock_t"></span><span id="_CPPv212mutex_unlockP6lock_t"></span><span id="mutex_unlock__lock_tP"></span><span class="target" id="tmj__thread_8h_1ab03330954fdf1b2a48d27ef08a27325a"></span>int <code class="descname">mutex_unlock</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv46lock_t" title="lock_t">lock_t</a> *<em>lock</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412mutex_unlockP6lock_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Release a mutex var. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="synchronization-barriers">
+<h3>2.9.2. Synchronization barriers<a class="headerlink" href="#synchronization-barriers" title="Permalink to this headline">¶</a></h3>
+<dl class="type">
+<dt id="_CPPv49barrier_t">
+<span id="_CPPv39barrier_t"></span><span id="_CPPv29barrier_t"></span><span id="barrier_t"></span><em class="property">type </em><code class="descname">barrier_t</code><a class="headerlink" href="#_CPPv49barrier_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A barrier variable. This is a packed struct of 16 bytes.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412barrier_initP9barrier_t8uint32_t">
+<span id="_CPPv312barrier_initP9barrier_t8uint32_t"></span><span id="_CPPv212barrier_initP9barrier_t8uint32_t"></span><span id="barrier_init__barrier_tP.uint32_t"></span><span class="target" id="tmj__thread_8h_1a894bf64981062ad4f2ea97ed07d045d9"></span>void <code class="descname">barrier_init</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49barrier_t" title="barrier_t">barrier_t</a> *__restrict__ <em>barrier</em>, uint32_t <em>count</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412barrier_initP9barrier_t8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Inititalize a thread barrier. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412barrier_waitP9barrier_t">
+<span id="_CPPv312barrier_waitP9barrier_t"></span><span id="_CPPv212barrier_waitP9barrier_t"></span><span id="barrier_wait__barrier_tP"></span><span class="target" id="tmj__thread_8h_1adbbdebce4d78a75da71dabdeb72ede25"></span>void <code class="descname">barrier_wait</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49barrier_t" title="barrier_t">barrier_t</a> *__restrict__ <em>barrier</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412barrier_waitP9barrier_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Block at a thread barrier. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv420pthread_barrier_waitP9barrier_t">
+<span id="_CPPv320pthread_barrier_waitP9barrier_t"></span><span id="_CPPv220pthread_barrier_waitP9barrier_t"></span><span id="pthread_barrier_wait__barrier_tP"></span><span class="target" id="tmj__thread_8h_1a23f2343601332a182d0aa83321e0d2ad"></span>void <code class="descname">pthread_barrier_wait</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49barrier_t" title="barrier_t">barrier_t</a> *__restrict__ <em>barrier</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420pthread_barrier_waitP9barrier_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p><p><cite>Provided for gem5 back-compatibility</cite></p>
+<ul class="simple">
+<li>Identical to <a class="reference internal" href="#tmj__thread_8h_1adbbdebce4d78a75da71dabdeb72ede25"><span class="std std-ref">barrier_wait()</span></a> </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv419global_barrier_waitP9barrier_tP9barrier_t">
+<span id="_CPPv319global_barrier_waitP9barrier_tP9barrier_t"></span><span id="_CPPv219global_barrier_waitP9barrier_tP9barrier_t"></span><span id="global_barrier_wait__barrier_tP.barrier_tP"></span><span class="target" id="tmj__thread_8h_1af8ff8c3179d27ed235497a81babd5539"></span>void <code class="descname">global_barrier_wait</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49barrier_t" title="barrier_t">barrier_t</a> *<em>tile_int_bar</em>, <a class="reference internal" href="#_CPPv49barrier_t" title="barrier_t">barrier_t</a> *<em>tile_ext_bar</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419global_barrier_waitP9barrier_tP9barrier_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Global barrier synchronization, callable by both managers and workers<ul class="simple">
+<li>not intended to be used directly, apps should use <a class="reference internal" href="#tmj__rt__basic_8h_1acaaa18b9b8e7bceca90077c4a097c25a"><span class="std std-ref">sync_all()</span></a> instead </li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="abstracted-runtime-api">
+<h2>2.10. Abstracted Runtime API<a class="headerlink" href="#abstracted-runtime-api" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="setup">
+<h3>2.10.1. Setup<a class="headerlink" href="#setup" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv47RT_INIT8uint32_t8uint32_t8uint32_t12r2r_switch_e">
+<span id="_CPPv37RT_INIT8uint32_t8uint32_t8uint32_t12r2r_switch_e"></span><span id="_CPPv27RT_INIT8uint32_t8uint32_t8uint32_t12r2r_switch_e"></span><span id="RT_INIT__uint32_t.uint32_t.uint32_t.r2r_switch_e"></span><span class="target" id="tmj__rt__basic_8h_1a937678ac5c41e334a5b63a15507997d2"></span><em class="property">static</em> void <code class="descname">RT_INIT</code><span class="sig-paren">(</span>uint32_t <em>num_threads</em> = NUM_THREADS, uint32_t <em>num_tiles</em> = NUM_TILES, uint32_t <em>l1_mode</em> = CTRL_CA_SCOPE_PRIV, r2r_switch_e <em>r2r_en</em> = r2r_switch_e::ENABLE<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47RT_INIT8uint32_t8uint32_t8uint32_t12r2r_switch_e" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Initialize the execution environment for all threads<ul class="simple">
+<li>Arguments specify the number of <em>worker</em> threads per tile, and # of tiles that will participate in kernels, barriers, etc.</li>
+<li>Should be called only <em>once</em> by each thread before any RT API’s are used</li>
+<li>GSP and RAM are handled by manager of tile 0</li>
+<li>TSP is handled by manager of corresponding tile </li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="section" id="thread-synchronization">
+<h3>2.10.2. Thread synchronization<a class="headerlink" href="#thread-synchronization" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv413sync_managersv">
+<span id="_CPPv313sync_managersv"></span><span id="_CPPv213sync_managersv"></span><span id="sync_managers"></span><span class="target" id="tmj__rt__basic_8h_1a939023f036282782b511152878f4f64f"></span>void <code class="descname">sync_managers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413sync_managersv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Control synchronization for all managers in the calling tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412sync_workersv">
+<span id="_CPPv312sync_workersv"></span><span id="_CPPv212sync_workersv"></span><span id="sync_workers"></span><span class="target" id="tmj__rt__basic_8h_1ab7b4ef64a27e23f8546b07807d971ecd"></span>void <code class="descname">sync_workers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412sync_workersv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Control synchronization for all workers in the calling tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv49sync_tilev">
+<span id="_CPPv39sync_tilev"></span><span id="_CPPv29sync_tilev"></span><span id="sync_tile"></span><span class="target" id="tmj__rt__basic_8h_1a344bc15ce6008e0366fcc623bd91ea04"></span>void <code class="descname">sync_tile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49sync_tilev" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Control synchronization for all workers and the manager in the calling tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv48sync_allv">
+<span id="_CPPv38sync_allv"></span><span id="_CPPv28sync_allv"></span><span id="sync_all"></span><span class="target" id="tmj__rt__basic_8h_1acaaa18b9b8e7bceca90077c4a097c25a"></span>void <code class="descname">sync_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48sync_allv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Control synchronization for all workers and managers. </p>
+</dd></dl>
+
+</div>
+<div class="section" id="memory-address-getters">
+<h3>2.10.3. Memory address getters<a class="headerlink" href="#memory-address-getters" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv412GET_RAM_BASEv">
+<span id="_CPPv312GET_RAM_BASEv"></span><span id="_CPPv212GET_RAM_BASEv"></span><span id="GET_RAM_BASE__void"></span><span class="target" id="tmj__rt__basic_8h_1a537cd0273a686ef9a2d318d72820b11e"></span>void *<code class="descname">GET_RAM_BASE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412GET_RAM_BASEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>RAM base address<ul class="simple">
+<li>not offset by rt_state, since RAM’s rt_state resides in the GSP</li>
+<li>unsafe if MALLOC_POLY with malloc_scope_e::RAM is used </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414GET_L1_SP_BASEv">
+<span id="_CPPv314GET_L1_SP_BASEv"></span><span id="_CPPv214GET_L1_SP_BASEv"></span><span id="GET_L1_SP_BASE__void"></span><span class="target" id="tmj__rt__basic_8h_1a9090503083aaf98eccb71214f9db76bd"></span>void *<code class="descname">GET_L1_SP_BASE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414GET_L1_SP_BASEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>L1 scratchpad base address<ul class="simple">
+<li>always safe, since there is (currently) no associated malloc scope </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412GET_TSP_BASEv">
+<span id="_CPPv312GET_TSP_BASEv"></span><span id="_CPPv212GET_TSP_BASEv"></span><span id="GET_TSP_BASE__void"></span><span class="target" id="tmj__rt__basic_8h_1a93b8484dd7bddbf3e3c745407afcdfb3"></span>void *<code class="descname">GET_TSP_BASE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412GET_TSP_BASEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>TSP base address<ul class="simple">
+<li>offset by it’s rt_state</li>
+<li>unsafe if MALLOC_POLY with malloc_scope_e::TILE is used </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412GET_GSP_BASEv">
+<span id="_CPPv312GET_GSP_BASEv"></span><span id="_CPPv212GET_GSP_BASEv"></span><span id="GET_GSP_BASE__void"></span><span class="target" id="tmj__rt__basic_8h_1a9396b317cec1e47a2c3fb83e587a68aa"></span>void *<code class="descname">GET_GSP_BASE</code><span class="sig-paren">(</span>void<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412GET_GSP_BASEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>GSP base address<ul class="simple">
+<li>offset by it’s rt_state</li>
+<li>unsafe if MALLOC_POLY with malloc_scope_e::GLOBAL is used </li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="section" id="memory-allocation">
+<h3>2.10.4. Memory allocation<a class="headerlink" href="#memory-allocation" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv411MALLOC_POLY6size_t14malloc_scope_e">
+<span id="_CPPv311MALLOC_POLY6size_t14malloc_scope_e"></span><span id="_CPPv211MALLOC_POLY6size_t14malloc_scope_e"></span><span id="MALLOC_POLY__s.malloc_scope_e"></span><span class="target" id="tmj__rt__basic_8h_1a22a4303213a4d66b3572c46c711a7c01"></span><em class="property">static</em> void *<code class="descname">MALLOC_POLY</code><span class="sig-paren">(</span>size_t <em>bytes</em>, malloc_scope_e <em>scope</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411MALLOC_POLY6size_t14malloc_scope_e" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Allocates memory in one of multiple physical memory spaces. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv49FREE_POLY14malloc_scope_e">
+<span id="_CPPv39FREE_POLY14malloc_scope_e"></span><span id="_CPPv29FREE_POLY14malloc_scope_e"></span><span id="FREE_POLY__malloc_scope_e"></span><span class="target" id="tmj__rt__basic_8h_1a5970fb4dd06d28e696db444fa24423c3"></span><em class="property">static</em> void <code class="descname">FREE_POLY</code><span class="sig-paren">(</span>malloc_scope_e <em>scope</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49FREE_POLY14malloc_scope_e" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Frees all memory in a scope (will free across all threads that share the scope)<ul class="simple">
+<li>Must be called by a manager</li>
+<li>Does not include synchronization </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv49MALLOC_L06size_t">
+<span id="_CPPv39MALLOC_L06size_t"></span><span id="_CPPv29MALLOC_L06size_t"></span><span id="MALLOC_L0__s"></span><span class="target" id="tmj__rt__basic_8h_1a92ac7ea127bb6443e4b420881b189289"></span>void *<code class="descname">MALLOC_L0</code><span class="sig-paren">(</span>size_t <em>bytes</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49MALLOC_L06size_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Allocate memory in the core-private heap (located in i-sram) </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv47FREE_L0Pv">
+<span id="_CPPv37FREE_L0Pv"></span><span id="_CPPv27FREE_L0Pv"></span><span id="FREE_L0__voidP"></span><span class="target" id="tmj__rt__basic_8h_1a96248ad7cf1358d41eb1831431933303"></span>void <code class="descname">FREE_L0</code><span class="sig-paren">(</span>void *<em>ptr</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47FREE_L0Pv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Free memory that was allocated in the core-private heap. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv46MEMSETP8uint32_t8uint32_ti">
+<span id="_CPPv36MEMSETP8uint32_t8uint32_ti"></span><span id="_CPPv26MEMSETP8uint32_t8uint32_ti"></span><span id="MEMSET__uint32_tP.uint32_t.i"></span><span class="target" id="tmj__rt__basic_8h_1a5c75b953af69ae27549c679c736c1808"></span><em class="property">static</em> void <code class="descname">MEMSET</code><span class="sig-paren">(</span>uint32_t *<em>base</em>, uint32_t <em>word</em>, int <em>len</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv46MEMSETP8uint32_t8uint32_ti" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Word-granularity memset (compiler invoked uses byte-writes) </p>
+</dd></dl>
+
+</div>
+<div class="section" id="memory-barriers">
+<h3>2.10.5. Memory barriers<a class="headerlink" href="#memory-barriers" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv416mem_barrier_tilev">
+<span id="_CPPv316mem_barrier_tilev"></span><span id="_CPPv216mem_barrier_tilev"></span><span id="mem_barrier_tile"></span><span class="target" id="tmj__rt__basic_8h_1a93b167779ad29b21353f8a20edeaa1ac"></span><em class="property">static</em> void <code class="descname">mem_barrier_tile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416mem_barrier_tilev" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv415mem_barrier_allv">
+<span id="_CPPv315mem_barrier_allv"></span><span id="_CPPv215mem_barrier_allv"></span><span id="mem_barrier_all"></span><span class="target" id="tmj__rt__basic_8h_1a646af80e4e090821a1e043dd180e5d64"></span><em class="property">static</em> void <code class="descname">mem_barrier_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415mem_barrier_allv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv411mem_inv_allv">
+<span id="_CPPv311mem_inv_allv"></span><span id="_CPPv211mem_inv_allv"></span><span id="mem_inv_all"></span><span class="target" id="tmj__rt__basic_8h_1ad760c8a90e3f69e5db9d90f45fdbcfae"></span><em class="property">static</em> void <code class="descname">mem_inv_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411mem_inv_allv" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="thread-communication">
+<h3>2.10.6. Thread communication<a class="headerlink" href="#thread-communication" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv414broadcast_sendP5qio_ti">
+<span id="_CPPv314broadcast_sendP5qio_ti"></span><span id="_CPPv214broadcast_sendP5qio_ti"></span><span id="broadcast_send__qio_tP.i"></span><span class="target" id="tmj__rt__basic_8h_1a1b10e9d12c61fc1f3720958d4558b9d9"></span>void <code class="descname">broadcast_send</code><span class="sig-paren">(</span>qio_t *<em>items</em>, int <em>num_items</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414broadcast_sendP5qio_ti" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Send an array of values to all workers within the tile. </p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv414broadcast_recvP5qio_ti">
+<span id="_CPPv314broadcast_recvP5qio_ti"></span><span id="_CPPv214broadcast_recvP5qio_ti"></span><span id="broadcast_recv__qio_tP.i"></span><span class="target" id="tmj__rt__basic_8h_1af5f30f432b39cc86250d56ad6a4f6c28"></span>void <code class="descname">broadcast_recv</code><span class="sig-paren">(</span>qio_t *<em>items</em>, int <em>num_items</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414broadcast_recvP5qio_ti" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Receive an array of values from the manager. </p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="test-utilities">
+<h2>2.11. Test utilities<a class="headerlink" href="#test-utilities" title="Permalink to this headline">¶</a></h2>
+<p>The methods handle synchronization and signaling with the host, using various hardware mechanisms on the chip.
+Using these methods is required for testing on real hardware.
+There are additional methods available when using the RTL simulator (e.g., to poke various registers), but
+they are out-of-scope and not documented here.</p>
+<dl class="function">
+<dt id="_CPPv49main_sync8uint32_t">
+<span id="_CPPv39main_sync8uint32_t"></span><span id="_CPPv29main_sync8uint32_t"></span><span id="main_sync__uint32_t"></span><span class="target" id="test__util_8h_1a6ced90a93f6030e31a654e3df37b10ca"></span><em class="property">static</em> void <code class="descname">main_sync</code><span class="sig-paren">(</span>uint32_t <em>gflag</em> = _GFLAG_INIT<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49main_sync8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A host-device barrier, if running a single kernel<ul class="simple">
+<li>Similar to <a class="reference internal" href="#test__util_8h_1a41ac1e16bec4d71e6b7b5243192f648f"><span class="std std-ref">test_bar()</span></a> </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv48test_barP8uint32_t">
+<span id="_CPPv38test_barP8uint32_t"></span><span id="_CPPv28test_barP8uint32_t"></span><span id="test_bar__uint32_tP"></span><span class="target" id="test__util_8h_1a41ac1e16bec4d71e6b7b5243192f648f"></span><em class="property">static</em> void <code class="descname">test_bar</code><span class="sig-paren">(</span>uint32_t *<em>gflag</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48test_barP8uint32_t" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>A host-device barrier, for use across multiple testcases or kernel boundaries<ul class="simple">
+<li>Recommended to use <a class="reference internal" href="#test__util_8h_1a6ced90a93f6030e31a654e3df37b10ca"><span class="std std-ref">main_sync()</span></a>, unless testbench result checking a multiple points in the in the program is desired </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv410test_setupv">
+<span id="_CPPv310test_setupv"></span><span id="_CPPv210test_setupv"></span><span id="test_setup"></span><span class="target" id="test__util_8h_1ac39681d2bf1e29cc5e4a5599d8b5e261"></span><em class="property">static</em> void <code class="descname">test_setup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410test_setupv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Required call at the start of a kernel or testcase<ul class="simple">
+<li>synchronizes all cores (inc. the manager), and performs testbench bookkeeping </li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="_CPPv412test_cleanupv">
+<span id="_CPPv312test_cleanupv"></span><span id="_CPPv212test_cleanupv"></span><span id="test_cleanup"></span><span class="target" id="test__util_8h_1ae61ff40742ef249b87c8f54fb264a7ce"></span><em class="property">static</em> void <code class="descname">test_cleanup</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412test_cleanupv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Required call at the end of a kernel or testcase<ul class="simple">
+<li>synchronizes all cores (inc. the manager), invalidates caches, and performs testbench bookkeeping </li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="section" id="debug-aids">
+<h2>2.12. Debug aids<a class="headerlink" href="#debug-aids" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="line-breaking-prints">
+<h3>2.12.1. Line breaking prints<a class="headerlink" href="#line-breaking-prints" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="_CPPv45PRINTPcb">
+<span id="_CPPv35PRINTPcb"></span><span id="_CPPv25PRINTPcb"></span><span id="PRINT__cP.b"></span><span class="target" id="tmj__hal_8h_1a4ffe5c0c7141bcd58ee3ac4371cfce70"></span><em class="property">static</em> void <code class="descname">PRINT</code><span class="sig-paren">(</span>char *<em>s</em>, bool <em>flush</em> = true<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv45PRINTPcb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv49PRINT_INTib">
+<span id="_CPPv39PRINT_INTib"></span><span id="_CPPv29PRINT_INTib"></span><span id="PRINT_INT__i.b"></span><span class="target" id="tmj__hal_8h_1ab70ae592c9df5275e03be3ff6309b801"></span><em class="property">static</em> void <code class="descname">PRINT_INT</code><span class="sig-paren">(</span>int <em>num</em>, bool <em>flush</em> = true<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49PRINT_INTib" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="_CPPv49PRINT_HEX8uint32_tb">
+<span id="_CPPv39PRINT_HEX8uint32_tb"></span><span id="_CPPv29PRINT_HEX8uint32_tb"></span><span id="PRINT_HEX__uint32_t.b"></span><span class="target" id="tmj__hal_8h_1a63f2798695b56424722ffbc3816e2f47"></span><em class="property">static</em> void <code class="descname">PRINT_HEX</code><span class="sig-paren">(</span>uint32_t <em>num</em>, bool <em>flush</em> = true<span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49PRINT_HEX8uint32_tb" title="Permalink to this definition">¶</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="non-line-breaking-prints">
+<h3>2.12.2. Non-line breaking prints<a class="headerlink" href="#non-line-breaking-prints" title="Permalink to this headline">¶</a></h3>
+<p>Prints are line-breaking by default, but breaks can be disabled by passing <code class="code docutils literal notranslate"><span class="pre">false</span></code> for the
+optional argument <code class="code docutils literal notranslate"><span class="pre">flush</span></code>.
+There are also the following convenience macros (suffixed with “_NF”):</p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Non-linebreaking prints</span>
+<span class="cp">#define PRINT_NF(s)       PRINT(s, false)</span>
+<span class="cp">#define PRINT_INT_NF(v)   PRINT_INT(v, false)</span>
+<span class="cp">#define PRINT_HEX_NF(v)   PRINT_HEX(v, false)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="debug-macros">
+<h3>2.12.3. Debug macros<a class="headerlink" href="#debug-macros" title="Permalink to this headline">¶</a></h3>
+<dl class="macro">
+<dt id="c.DBG">
+<code class="descname">DBG</code><a class="headerlink" href="#c.DBG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Enables “D” prefixed print methods, if added before the <code class="code docutils literal notranslate"><span class="pre">#include</span></code> for <code class="file docutils literal notranslate"><span class="pre">tmj_hal.h</span></code>.</p>
+</dd></dl>
+
+<div class="literal-block-wrapper docutils container" id="id6">
+<div class="code-block-caption"><span class="caption-text">DBG-enabled macros from <code class="file docutils literal notranslate"><span class="pre">tmj_hal.h</span></code></span><a class="headerlink" href="#id6" title="Permalink to this code">¶</a></div>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="c1">// Debug aliases and helper macros</span>
+<span class="cp">#ifdef DBG</span>
+   <span class="c1">// flush prints (newline)</span>
+   <span class="cp">#define DPRINT(s)          PRINT(s)</span>
+   <span class="cp">#define DPRINT_INT(v)      PRINT_INT(v)</span>
+   <span class="cp">#define DPRINT_HEX(v)      PRINT_HEX(v)</span>
+   <span class="c1">// no flush variants</span>
+   <span class="cp">#define DPRINT_NF(s)       PRINT_NF(s)</span>
+   <span class="cp">#define DPRINT_INT_NF(v)   PRINT_INT_NF(v)</span>
+   <span class="cp">#define DPRINT_HEX_NF(v)   PRINT_HEX_NF(v)</span>
+   <span class="c1">// inject a line of code</span>
+   <span class="cp">#define DBG_LINE(line)     line</span>
+<span class="c1">// Empty calls if DBG isn&#39;t defined</span>
+<span class="cp">#else</span>
+   <span class="c1">// ...</span>
+   <span class="cp">#define DPRINT(s)          {}</span>
+   <span class="cp">#define DPRINT_INT(v)      {}</span>
+   <span class="cp">#define DPRINT_HEX(v)      {}</span>
+   <span class="c1">// ...</span>
+   <span class="cp">#define DPRINT_NF(s)       {}</span>
+   <span class="cp">#define DPRINT_INT_NF(v)   {}</span>
+   <span class="cp">#define DPRINT_HEX_NF(v)   {}</span>
+   <span class="c1">// ...</span>
+   <span class="cp">#define DBG_LINE(line)     {}</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">setup doxygen+breathe. writing these docs by hand was more tedious than I thought</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="guidelines.html" class="btn btn-neutral float-right" title="3. Programming Guidelines &amp; Gotchas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="introduction.html" class="btn btn-neutral float-left" title="1. Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, tmj-devs
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
